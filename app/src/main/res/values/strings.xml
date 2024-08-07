@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ﾚｺｰﾀﾞｰ</string>
+    <string name="initialize_second">0:00</string>
+    <string name="button">Player</string>
+    <string name="description">
+        通知欄に録音の開始/完了ボタンが作成されます\n下のフォルダパスに録音した音声ファイルが保存されます\n保存したファイルをタップでプレイヤーにセット、\n左へスワイプすると削除します。
+    </string>
+    <string name="save_folder">保存場所：</string>
+
+</resources>
