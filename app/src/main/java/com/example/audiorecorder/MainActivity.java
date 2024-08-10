@@ -22,9 +22,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileObserver;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,11 +32,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     //変数
-    ArrayList<String> filePath;
+    ArrayList<String> filePaths;
     TextView text, folderPath;
 
     RecyclerView rv;
@@ -75,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d("onStart","Started");
         folderPath.setText(getFolderPath());
 
-        setRecyclerView(FileListProperties(getFolderPath()));
+        setFileList(getFolderPath());
+        setRecyclerView();
 
         setFileObserver(getFolderPath());
 
@@ -186,12 +183,12 @@ public class MainActivity extends AppCompatActivity {
     //ウィジェット設定//
 
     //セットリサイクラービュー
-    void setRecyclerView(ArrayList<String> list) {
+    void setRecyclerView() {
         manager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false);
         rv.setHasFixedSize(true);
         rv.setLayoutManager(manager);
 
-        la = new ListAdapter(list);
+        la = new ListAdapter(filePaths);
         rv.setAdapter(la);
 
         decoration = new DividerItemDecoration(MainActivity.this,DividerItemDecoration.VERTICAL);
@@ -211,14 +208,14 @@ public class MainActivity extends AppCompatActivity {
                 //ファイルを削除
                 int position =viewHolder.getLayoutPosition();
 
-                if(!filePath.isEmpty()) {
+                if(!filePaths.isEmpty()) {
                     try {
-                        Files.delete(Paths.get(filePath.get(position)));
+                        Files.delete(Paths.get(filePaths.get(position)));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    //filePath.remove(position);
-                    setRecyclerView(FileListProperties(getFolderPath()));
+                    filePaths.remove(position);
+                    //setRecyclerView(setFileList(getFolderPath()));
                     Toast.makeText(context,"削除しました。",Toast.LENGTH_SHORT).show();
                     la.notifyItemRemoved(position);
                 }
@@ -236,90 +233,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //配列リストの設定
-    ArrayList<String> FileListProperties(String path) {
+    void setFileList(String path) {
 
         File[] ArrayFile = new File(path).listFiles();
-        filePath = new ArrayList<>();
+        filePaths = new ArrayList<>();
 
         if(ArrayFile != null && ArrayFile.length != 0) {
             Arrays.sort(ArrayFile, Collections.reverseOrder());
 
             for (int i = 0; i < ArrayFile.length; i++) {
-                filePath.add(i, ArrayFile[i].getPath());
+                filePaths.add(i, ArrayFile[i].getPath());
             }
-
-            return filePath;
         }
-
-        return filePath;
     }
 
     //セットファイルオブザーバーの設定
     void setFileObserver(String path) {
         observer = new FileObserver(path) {
 
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onEvent(int i, @Nullable String s) {
                 runOnUiThread(() -> {
                     if(i == FileObserver.CREATE) {
-                        setRecyclerView(FileListProperties(getFolderPath()));
-
+                        //setRecyclerView(setFileList(getFolderPath()));
+                        filePaths.clear();
+                        la = null;
+                        setFileList(getFolderPath());
+                        setRecyclerView();
+                        la.notifyDataSetChanged();
                     }
                 });
             }
         };
 
         observer.startWatching();
-    }
-
-    //クラス//
-
-    //ビューホルダー
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        View view;
-        TextView filePath;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            this.view = itemView;
-            this.filePath = view.findViewById(R.id.file_path);
-        }
-    }
-    //リストアダプター
-    public static class ListAdapter extends RecyclerView.Adapter<ViewHolder> {
-        final private List<String> FilePath;
-        ViewHolder vh;
-
-        public ListAdapter(List<String> FilePath) { this.FilePath = FilePath;}
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.list_item, parent, false);
-
-            vh = new ViewHolder(v);
-            vh.itemView.setOnClickListener(view -> {
-                int position = vh.getLayoutPosition();
-
-                String Path = FilePath.get(position);
-                Context context = view.getContext();
-
-                context.startActivity(new Intent(context, PlayerActivity.class)
-                        .putExtra("player",Path));
-            });
-
-            return vh;
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            String name = new File(FilePath.get(position)).getName();
-            holder.filePath.setText(name);
-        }
-
-        @Override
-        public int getItemCount() { return this.FilePath.size(); }
     }
 }
