@@ -127,15 +127,13 @@ public class MainActivity extends AppCompatActivity {
         String[] PERMISSIONS;
 
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            PERMISSIONS = new String[2];
+            PERMISSIONS = new String[1];
             PERMISSIONS[0] = Manifest.permission.RECORD_AUDIO;
-            PERMISSIONS[1] = Manifest.permission.READ_EXTERNAL_STORAGE;
 
         } else {
-            PERMISSIONS = new String[3];
+            PERMISSIONS = new String[2];
             PERMISSIONS[0] = Manifest.permission.RECORD_AUDIO;
             PERMISSIONS[1] = Manifest.permission.POST_NOTIFICATIONS;
-            PERMISSIONS[2] = Manifest.permission.READ_MEDIA_AUDIO;
 
         }
 
