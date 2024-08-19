@@ -13,7 +13,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
+//import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -75,7 +75,7 @@ public class MyService extends Service {
                     .build();
 
             if(mediaRecorder == null) {
-                startRecording();
+                new Thread(this::startRecording).start();
             }
 
         } else {
@@ -90,7 +90,7 @@ public class MyService extends Service {
                     .build();
 
             if(mediaRecorder != null) {
-                stopRecording();
+                new Thread(this::stopRecording).start();
             }
 
         }
@@ -138,7 +138,7 @@ public class MyService extends Service {
             try {
                 mediaRecorder.prepare();
                 mediaRecorder.start();
-                Toast.makeText(this, "録音を開始しました", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "録音を開始しました", Toast.LENGTH_SHORT).show();
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -154,7 +154,7 @@ public class MyService extends Service {
 
             mediaRecorder = null;
 
-            Toast.makeText(this,"録音を終了しました",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"録音を終了しました",Toast.LENGTH_SHORT).show();
         }
     }
 
